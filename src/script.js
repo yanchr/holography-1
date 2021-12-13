@@ -42,16 +42,12 @@ const sizes = {
 
 window.addEventListener('click', () => 
 {
-    if(mirrorIndex < mirrorObjects.length - 1) {
-        mirrorIndex++
-        console.log('plus')
-    } else {
-        mirrorIndex = 0
-        console.log('no' +  mirrorObjects.length)
-    }
-    meshes.forEach(mesh => scene.remove(mesh))
-    meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
-    meshes.forEach(mesh => scene.add(mesh))
+  changedMirrorMesh()
+})
+
+window.addEventListener('touchstart', () => 
+{
+  changedMirrorMesh()
 })
 
 window.addEventListener('resize', () =>
@@ -114,4 +110,17 @@ tick()
 
 export function getElapsedTime() {
     console.log("ddd")
+}
+
+function changedMirrorMesh(){
+    if(mirrorIndex < mirrorObjects.length - 1) {
+        mirrorIndex++
+        console.log('plus')
+    } else {
+        mirrorIndex = 0
+        console.log('no' +  mirrorObjects.length)
+    }
+    meshes.forEach(mesh => scene.remove(mesh))
+    meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
+    meshes.forEach(mesh => scene.add(mesh))
 }
