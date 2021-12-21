@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 import * as dat from 'dat.gui'
 import { Models } from './models'
+import { loadSoldier, getGroup, getMirroredGroup, duplicateToMirror } from './blenderModels'
 
 
 /**
@@ -19,19 +20,29 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+scene.add(ambientLight)
+
 /**
  * Object
  */
-//scene.add(mesh)
+ const axesHelper = new THREE.AxesHelper( 5 );
+ scene.add( axesHelper );
+
+ const group = new THREE.Group().add(new THREE.Mesh(
+     new THREE.ConeGeometry(5, 5, 4, 2),
+     new THREE.MeshBasicMaterial({color: 0x983104})
+ ))
+ group.position.y += 10
+
+loadSoldier()
+duplicateToMirror()
 models.addToScene(scene)
+let grouper = getGroup()
+grouper = group
+const allGroups = models.setMirroredBox(grouper.clone(), grouper.clone(), grouper.clone(), grouper.clone())
+allGroups.forEach(mesh => scene.add(mesh))
 
-const mirrorObjects = [
-    models.getBox(), models.getTorus(3, 1)
-]
-let mirrorIndex = 0 
-let meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
-
-meshes.forEach(mesh => scene.add(mesh))
 /**
 * Sizes
  */
@@ -40,18 +51,15 @@ const sizes = {
     height: window.innerHeight
 }
 
-window.addEventListener('click', () => 
-{
-  changedMirrorMesh()
+window.addEventListener('click', () => {
+    // changedMirrorMesh()
 })
 
-window.addEventListener('touchstart', () => 
-{
-  changedMirrorMesh()
+window.addEventListener('touchstart', () => {
+    // changedMirrorMesh()
 })
 
-window.addEventListener('resize', () =>
-{
+window.addEventListener('resize', () => {
     // Update sizes
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
@@ -70,7 +78,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 20
+camera.position.z = 40
 scene.add(camera)
 
 
@@ -92,8 +100,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 const clock = new THREE.Clock()
 
-const tick = () =>
-{
+const tick = () => {
     const elapsedTime = clock.getElapsedTime()
 
     // Update controls
@@ -112,13 +119,13 @@ export function getElapsedTime() {
     console.log("ddd")
 }
 
-function changedMirrorMesh(){
-    if(mirrorIndex < mirrorObjects.length - 1) {
+function changedMirrorMesh() {
+    if (mirrorIndex < mirrorObjects.length - 1) {
         mirrorIndex++
         console.log('plus')
     } else {
         mirrorIndex = 0
-        console.log('no' +  mirrorObjects.length)
+        console.log('no' + mirrorObjects.length)
     }
     meshes.forEach(mesh => scene.remove(mesh))
     meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
