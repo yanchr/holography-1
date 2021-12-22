@@ -20,17 +20,20 @@ export class Models {
         
     }
 
-    setMirroredBox(object1, object2, object3, object4) {
-        object1.position.x = 10
-        object2.position.y = 10
-        object3.position.x = -10
-        object4.position.y = -10
-        this.rotateObject(object1)
-        this.rotateObject(object2)
-        this.rotateObject(object3)
-        this.rotateObject(object4)
+    setMirroredBox(object) {
+        const object1 = object.clone()
+        const object2 = object.clone()
+        const object3 = object.clone()
+        const object4 = object.clone()
+        object1.position.x += 10
+        object2.position.y += 10
+        object3.position.x += -10
+        object4.position.y += -10
+       this.rotateObject(object1)
+       this.rotateObject(object2)
+       this.rotateObject(object3)
+       this.rotateObject(object4)
         return [object1, object2, object3, object4]
-       
     }
 
     rotateObject(object) {

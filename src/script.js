@@ -4,13 +4,14 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 import * as dat from 'dat.gui'
 import { Models } from './models'
-import { loadSoldier, getGroup, getMirroredGroup, duplicateToMirror } from './blenderModels'
+import { Soldier } from './Soldier'
 
 
 /**
  * Initialize
  */
 const models = new Models()
+const soldier = new Soldier()
 /**
  * Base
  */
@@ -20,29 +21,35 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+const ambientLight = new THREE.AmbientLight(0xffffff, 3)
 scene.add(ambientLight)
 
 /**
- * Object
+ * Objects
  */
- const axesHelper = new THREE.AxesHelper( 5 );
- scene.add( axesHelper );
-
- const group = new THREE.Group().add(new THREE.Mesh(
-     new THREE.ConeGeometry(5, 5, 4, 2),
-     new THREE.MeshBasicMaterial({color: 0x983104})
- ))
- group.position.y += 10
-
-loadSoldier()
-duplicateToMirror()
 models.addToScene(scene)
-let grouper = getGroup()
-grouper = group
-const allGroups = models.setMirroredBox(grouper.clone(), grouper.clone(), grouper.clone(), grouper.clone())
-allGroups.forEach(mesh => scene.add(mesh))
+const group = new THREE.Group()
+group.add(new THREE.Mesh(
+    new THREE.ConeGeometry(2, 5, 4, 32),
+    new THREE.MeshBasicMaterial({ color: 0xf0f0ff })
+))
 
+let mirrorIndex = 0
+
+const mirrorObjects = [
+    models.getBox(), models.getTorus(3, 1), soldier.loadRunningMan(), group
+]
+let meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
+meshes = placeSoldiers()
+//scene.add(soldier.loadRunningMan())
+console.log(mirrorObjects[mirrorIndex + 2])
+//scene.add(group.clone())
+//console.log(group)
+//scene.add(meshes[1])
+// setTimeout(() => {
+//     changedMirrorMesh()
+// }, 1000)
+meshes.forEach(mesh => scene.add(mesh))
 /**
 * Sizes
  */
@@ -52,11 +59,15 @@ const sizes = {
 }
 
 window.addEventListener('click', () => {
-    // changedMirrorMesh()
+    changedMirrorMesh()
 })
 
 window.addEventListener('touchstart', () => {
-    // changedMirrorMesh()
+    changedMirrorMesh()
+})
+
+window.addEventListener('scroll', () => {
+    console.log(e)
 })
 
 window.addEventListener('resize', () => {
@@ -78,13 +89,13 @@ window.addEventListener('resize', () => {
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 40
+camera.position.z = 30
 scene.add(camera)
 
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
+//controls.enableDamping = true
 
 /**
  * Renderer
@@ -104,7 +115,7 @@ const tick = () => {
     const elapsedTime = clock.getElapsedTime()
 
     // Update controls
-    controls.update()
+    //controls.update()
 
     // Render
     renderer.render(scene, camera)
@@ -122,12 +133,28 @@ export function getElapsedTime() {
 function changedMirrorMesh() {
     if (mirrorIndex < mirrorObjects.length - 1) {
         mirrorIndex++
-        console.log('plus')
     } else {
         mirrorIndex = 0
-        console.log('no' + mirrorObjects.length)
     }
     meshes.forEach(mesh => scene.remove(mesh))
     meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
+    //console.log(meshes[1])
     meshes.forEach(mesh => scene.add(mesh))
+}
+
+function placeSoldiers() {
+    const sold1 = soldier.loadRunningMan()
+    const sold2 = soldier.loadRunningMan()
+    const sold3 = soldier.loadRunningMan()
+    const sold4 = soldier.loadRunningMan()
+    sold1.position.set(10, -5, 0)
+    sold2.position.set(0, -15, 0)
+    sold3.position.set(-10, -5, 0)
+    sold4.position.set(0, 5, 0)
+    models.rotateObject(sold1)
+    models.rotateObject(sold2)
+    models.rotateObject(sold3)
+    models.rotateObject(sold4)
+    //console.log(sold2)
+    return [sold1, sold2, sold3, sold4]
 }
