@@ -28,24 +28,28 @@ scene.add(ambientLight)
  * Objects
  */
 models.addToScene(scene)
-const group = new THREE.Group() 
+const group = new THREE.Group()
 group.add(new THREE.Mesh(
     new THREE.ConeGeometry(2, 5, 4, 32),
-    new THREE.MeshBasicMaterial({color: 0xf0f0ff})
+    new THREE.MeshBasicMaterial({ color: 0xf0f0ff })
 ))
 
-let mirrorIndex = 1
+let mirrorIndex = 0
 
 const mirrorObjects = [
     models.getBox(), models.getTorus(3, 1), soldier.loadRunningMan(), group
 ]
 let meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
-scene.add(mirrorObjects[mirrorIndex + 1])
-scene.add(meshes[1])
-setTimeout(() => {
-    changedMirrorMesh()
-}, 1000)
-//meshes.forEach(mesh => scene.add(mesh))
+meshes = placeSoldiers()
+//scene.add(soldier.loadRunningMan())
+console.log(mirrorObjects[mirrorIndex + 2])
+//scene.add(group.clone())
+//console.log(group)
+//scene.add(meshes[1])
+// setTimeout(() => {
+//     changedMirrorMesh()
+// }, 1000)
+meshes.forEach(mesh => scene.add(mesh))
 /**
 * Sizes
  */
@@ -54,22 +58,19 @@ const sizes = {
     height: window.innerHeight
 }
 
-window.addEventListener('click', () => 
-{
-  //changedMirrorMesh()
+window.addEventListener('click', () => {
+    changedMirrorMesh()
 })
 
-window.addEventListener('touchstart', () => 
-{
-  //changedMirrorMesh()
+window.addEventListener('touchstart', () => {
+    changedMirrorMesh()
 })
 
 window.addEventListener('scroll', () => {
     console.log(e)
 })
 
-window.addEventListener('resize', () =>
-{
+window.addEventListener('resize', () => {
     // Update sizes
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
@@ -110,8 +111,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 const clock = new THREE.Clock()
 
-const tick = () =>
-{
+const tick = () => {
     const elapsedTime = clock.getElapsedTime()
 
     // Update controls
@@ -130,14 +130,31 @@ export function getElapsedTime() {
     console.log("ddd")
 }
 
-function changedMirrorMesh(){
-    if(mirrorIndex < mirrorObjects.length - 1) {
+function changedMirrorMesh() {
+    if (mirrorIndex < mirrorObjects.length - 1) {
         mirrorIndex++
     } else {
         mirrorIndex = 0
     }
     meshes.forEach(mesh => scene.remove(mesh))
     meshes = models.setMirroredBox(mirrorObjects[mirrorIndex])
-    console.log(meshes[1])
+    //console.log(meshes[1])
     meshes.forEach(mesh => scene.add(mesh))
+}
+
+function placeSoldiers() {
+    const sold1 = soldier.loadRunningMan()
+    const sold2 = soldier.loadRunningMan()
+    const sold3 = soldier.loadRunningMan()
+    const sold4 = soldier.loadRunningMan()
+    sold1.position.set(10, -5, 0)
+    sold2.position.set(0, -15, 0)
+    sold3.position.set(-10, -5, 0)
+    sold4.position.set(0, 5, 0)
+    models.rotateObject(sold1)
+    models.rotateObject(sold2)
+    models.rotateObject(sold3)
+    models.rotateObject(sold4)
+    //console.log(sold2)
+    return [sold1, sold2, sold3, sold4]
 }
