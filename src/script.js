@@ -12,6 +12,7 @@ import { Soldier } from './Soldier'
  */
 const models = new Models()
 const soldier = new Soldier()
+let space = 10
 /**
  * Base
  */
@@ -66,8 +67,14 @@ window.addEventListener('touchstart', () => {
     changedMirrorMesh()
 })
 
-window.addEventListener('scroll', () => {
-    console.log(e)
+window.addEventListener('wheel', (e) => {
+    if (e.deltaY > 0) {
+        space++
+    }else {
+        space--
+    }
+    console.log(space)
+    changeSoldiers()
 })
 
 window.addEventListener('resize', () => {
@@ -94,7 +101,7 @@ scene.add(camera)
 
 
 // Controls
-const controls = new OrbitControls(camera, canvas)
+//const controls = new OrbitControls(camera, canvas)
 //controls.enableDamping = true
 
 /**
@@ -147,14 +154,20 @@ function placeSoldiers() {
     const sold2 = soldier.loadRunningMan()
     const sold3 = soldier.loadRunningMan()
     const sold4 = soldier.loadRunningMan()
-    sold1.position.set(10, -5, 0)
-    sold2.position.set(0, -15, 0)
-    sold3.position.set(-10, -5, 0)
-    sold4.position.set(0, 5, 0)
+    sold1.position.set(space, -5, 0)
+    sold2.position.set(0, -5 + space, 0)
+    sold3.position.set(-space, -5, 0)
+    sold4.position.set(0, -5 - space, 0)
     models.rotateObject(sold1)
     models.rotateObject(sold2)
     models.rotateObject(sold3)
     models.rotateObject(sold4)
     //console.log(sold2)
     return [sold1, sold2, sold3, sold4]
+}
+
+function changeSoldiers() {
+    meshes.forEach(mesh => scene.remove(mesh))
+    meshes = placeSoldiers()
+    meshes.forEach(mesh => scene.add(mesh))
 }
